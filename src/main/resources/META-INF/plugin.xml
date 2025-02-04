@@ -1,0 +1,51 @@
+<idea-plugin>
+    <id>sh.arif.llmdog</id>
+    <name>LLMDog</name>
+    <version>1.0.6</version>
+    <vendor email="me@arif.sh" url="https://arif.sh">arif.sh</vendor>
+
+    <description><![CDATA[
+<h2>LLMDog: Streamline Your LLM Workflows within IntelliJ IDEA</h2>
+
+LLMDog is the essential IntelliJ Platform plugin for developers leveraging Large Language Models (LLMs). Effortlessly prepare your code and project structures for LLM consumption by generating well-formatted Markdown reports directly from your IDE.
+
+<h3>KEY BENEFITS:</h3>
+<ul>
+    <li><b>Effortless Markdown Generation:</b> Quickly create comprehensive Markdown summaries of selected files and directories, ideal for feeding into LLMs.</li>
+    <li><b>Seamless IDE Integration:</b> Access LLMDog through a dedicated tool window within IntelliJ IDEA.</li>
+    <li><b>Intelligent File Selection:</b> Select individual files or entire directory trees with ease. Files will be generated from this selection.</li>
+    <li><b>Respects .gitignore:</b> Automatically excludes irrelevant files based on your project's .gitignore rules.</li>
+    <li><b>Enhanced Productivity:</b> Stop manually copying and pasting code into LLMs. LLMDog automates the process, saving you valuable time and effort.</li>
+</ul>
+
+Get started with LLMDog today and supercharge your LLM-powered development!
+    ]]></description>
+
+    <depends>com.intellij.modules.lang</depends>
+
+    <actions>
+        <!-- Action to open the LLMDog selection dialog -->
+        <action id="LLMDog.OpenDialogAction" class="sh.arif.llmdog.OpenLLMDogDialogAction"
+                text="LLMDog: Select Files"
+                description="Opens the LLMDog file selection tool">
+            <add-to-group group-id="MainMenu" anchor="last"/>  <!-- Add to the main menu -->
+        </action>
+        <group id="LLMDog.Actions" text="LLMDog" popup="true">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <action id="LLMDog.GenerateMarkdown" class="sh.arif.llmdog.GenerateMarkdownAction"
+                    text="Generate Markdown for LLM (LLMDog)"
+                    description="Generates a Markdown report of the selected files/directories for LLM consumption"/>
+        </group>
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="LLMDog"
+                    factoryClass="sh.arif.llmdog.LLMDogToolWindowFactory"
+                    anchor="right"
+                    icon="/icons/pluginIcon.png"
+                    canCloseContents="false"
+        >
+        </toolWindow>
+    </extensions>
+    <idea-version since-build="252" until-build="252.*"/>
+</idea-plugin>
