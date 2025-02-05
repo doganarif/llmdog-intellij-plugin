@@ -4,6 +4,10 @@
 
 LLMDog is an IntelliJ Platform plugin that generates Markdown reports for selected files and directories directly within the IDE. It’s designed to streamline documentation and code review workflows for projects leveraging large language models.
 
+## Installation
+
+[![JetBrains Plugin](https://img.shields.io/badge/JetBrains-Install%20Now-000000?style=for-the-badge&logo=jetbrains&logoColor=white)](https://plugins.jetbrains.com/plugin/26464)
+
 ## Features
 
 - **Seamless IDE Integration:** Access LLMDog via a dedicated tool window in IntelliJ IDEA.
@@ -12,11 +16,9 @@ LLMDog is an IntelliJ Platform plugin that generates Markdown reports for select
 - **Gitignore Compliance:** Honors `.gitignore` rules to filter out unwanted files.
 - **Markdown Generation:** Produces a clean Markdown report and copies it to your clipboard.
 
-## Installation
 
-> **Note:** LLMDog is not yet available on the JetBrains Marketplace.
 
-For manual installation:
+## Manual Installation:
 
 1. Open **Settings/Preferences** in IntelliJ IDEA.
 2. Navigate to **Plugins** and choose to install a plugin from disk.
