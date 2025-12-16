@@ -201,8 +201,6 @@ class LLMDogSelectionDialog(private val project: Project) : JPanel(BorderLayout(
     private fun buildMarkdownOutput(project: Project, files: Set<VirtualFile>): String {
         val sb = StringBuilder()
 
-        logger.info("Building markdown output for files : ${selectedFiles.joinToString("\n ", "", "", -1, "...") { it.path }}")
-
         sb.append("# Directory Structure\n```\n")
         val nodesAddedToFileTree = mutableSetOf<VirtualFile>()
 
