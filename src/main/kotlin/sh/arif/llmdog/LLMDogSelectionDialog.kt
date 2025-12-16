@@ -1,7 +1,6 @@
 package sh.arif.llmdog
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtil
@@ -10,11 +9,7 @@ import java.awt.event.MouseEvent
 import javax.swing.*
 import javax.swing.tree.*
 import java.io.File
-import java.nio.file.Paths
-import com.intellij.openapi.fileTypes.FileTypeManager
-import javax.swing.ImageIcon
 import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.diagnostic.Logger
 import java.awt.*
@@ -25,7 +20,7 @@ class LLMDogSelectionDialog(private val project: Project) : JPanel(BorderLayout(
 
     private lateinit var fileTree: JTree
     private lateinit var rootNode: CheckableTreeNode
-    private val selectedFiles = mutableListOf<VirtualFile>()
+    private val selectedFiles = mutableSetOf<VirtualFile>()
     private val generateButton = JButton("Let's Dog It!") // Changed button text
     private val logger = Logger.getInstance(LLMDogSelectionDialog::class.java)
 
@@ -55,6 +50,9 @@ class LLMDogSelectionDialog(private val project: Project) : JPanel(BorderLayout(
                 if (selRow != -1 && path != null) {
                     val node = path.lastPathComponent as? CheckableTreeNode
                     if (node != null) {
+                        val userObject = node.userObject
+                        val pathStr = (userObject as? VirtualFile)?.path ?: userObject.toString()
+                        logger.info("Clicked node: $pathStr currentChecked=${node.isChecked} -> toggling")
                         node.isChecked = !node.isChecked // Toggle the state
                         (treeModel as DefaultTreeModel).nodeChanged(node)
                         updateSelectedFiles(node) // Update
@@ -117,8 +115,8 @@ class LLMDogSelectionDialog(private val project: Project) : JPanel(BorderLayout(
         }
     }
 
-    fun getSelectedFiles(): List<VirtualFile> {
-        return selectedFiles.toList()
+    fun getSelectedFiles(): Set<VirtualFile> {
+        return selectedFiles.toSet()
     }
 
     // update selected file
@@ -200,27 +198,22 @@ class LLMDogSelectionDialog(private val project: Project) : JPanel(BorderLayout(
         }
     }
 
-    private fun buildMarkdownOutput(project: Project, files: List<VirtualFile>): String {
+    private fun buildMarkdownOutput(project: Project, files: Set<VirtualFile>): String {
         val sb = StringBuilder()
 
+        logger.info("Building markdown output for files : ${selectedFiles.joinToString("\n ", "", "", -1, "...") { it.path }}")
+
         sb.append("# Directory Structure\n```\n")
+        val nodesAddedToFileTree = mutableSetOf<VirtualFile>()
+
         for (file in files) {
-            sb.append(buildFileTree(project, file, ""))
+            sb.append(buildFileTree(project, file, files, nodesAddedToFileTree, ""))
         }
         sb.append("```\n\n")
 
         sb.append("# File Contents\n")
 
-        val allFiles = mutableListOf<VirtualFile>()
         for (file in files) {
-            if (file.isDirectory) {
-                collectAllFiles(file, allFiles) // Collect all files recursively
-            } else {
-                allFiles.add(file) // Add individual file
-            }
-        }
-
-        for (file in allFiles) {
             if (!file.isDirectory) {
                 try {
                     val content = String(file.contentsToByteArray()) // Read content
@@ -241,13 +234,17 @@ class LLMDogSelectionDialog(private val project: Project) : JPanel(BorderLayout(
     }
 
 
-    private fun buildFileTree(project: Project, file: VirtualFile, indent: String): String {
+    private fun buildFileTree(project: Project, file: VirtualFile, filesToInclude: Set<VirtualFile>, nodesAlreadyAdded: MutableSet<VirtualFile>, indent: String): String {
+        if (file !in filesToInclude) return ""
+        if (file in nodesAlreadyAdded) return ""
+        nodesAlreadyAdded.add(file)
+
         val sb = StringBuilder()
 
         if (file.isDirectory) {
             sb.append("$indent${file.name}/\n")
             for (child in file.children) {
-                sb.append(buildFileTree(project, child, "$indent  "))
+                sb.append(buildFileTree(project, child, filesToInclude, nodesAlreadyAdded, "$indent  "))
             }
         } else {
             sb.append("$indent${file.name}\n")
