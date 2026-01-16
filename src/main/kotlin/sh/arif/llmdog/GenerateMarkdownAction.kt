@@ -55,7 +55,7 @@ class GenerateMarkdownAction : AnAction("Generate Markdown for LLM (LLMDog)") {
         }
     }
 
-    private fun generateMarkdown(project: Project, files: List<VirtualFile>): String {
+    private fun generateMarkdown(project: Project, files: Set<VirtualFile>): String {
         val sb = StringBuilder()
 
         sb.append("# Directory Structure\n```\n")
